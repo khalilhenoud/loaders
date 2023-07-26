@@ -1,0 +1,1 @@
+build\Debug\loaders_test ".\media\tree_stump.ase" ".\media\FontData2.csv" ".\media\12.png"
