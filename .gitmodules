@@ -1,0 +1,3 @@
+[submodule "loaders_test/external/library"]
+	path = loaders_test/external/library
+	url = https://github.com/khalilhenoud/library.git
