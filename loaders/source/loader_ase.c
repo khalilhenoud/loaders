@@ -11,8 +11,9 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include <loaders/utils.h>
+#include <library/allocator/allocator.h>
 #include <loaders/loader_ase.h>
+#include <loaders/utils.h>
 
 
 typedef
@@ -37,40 +38,66 @@ process_intermediate_faces(
   uint32_t faces_number, 
   const allocator_t* allocator)
 {
-  float* vertices_normals = (float*)allocator->mem_alloc(vertices_number * 3 * sizeof(float));
-  normal_additive_t* shared_normals = (normal_additive_t*)allocator->mem_cont_alloc(vertices_number, sizeof(normal_additive_t));
+  float* vertices_normals = 
+    (float*)allocator->mem_alloc(vertices_number * 3 * sizeof(float));
+  normal_additive_t* shared_normals = 
+    (normal_additive_t*)allocator->mem_cont_alloc(
+      vertices_number, sizeof(normal_additive_t));
 
 	for (uint32_t face_index = 0; face_index < faces_number; ++face_index) {
-		shared_normals[faces[face_index].v0].normal[0] += faces[face_index].normal[0];
-    shared_normals[faces[face_index].v0].normal[1] += faces[face_index].normal[1];
-    shared_normals[faces[face_index].v0].normal[2] += faces[face_index].normal[2];
+		shared_normals[faces[face_index].v0].normal[0] += 
+      faces[face_index].normal[0];
+    shared_normals[faces[face_index].v0].normal[1] += 
+      faces[face_index].normal[1];
+    shared_normals[faces[face_index].v0].normal[2] += 
+      faces[face_index].normal[2];
 		shared_normals[faces[face_index].v0].count++;
-		shared_normals[faces[face_index].v1].normal[0] += faces[face_index].normal[0];
-    shared_normals[faces[face_index].v1].normal[1] += faces[face_index].normal[1];
-    shared_normals[faces[face_index].v1].normal[2] += faces[face_index].normal[2];
+
+		shared_normals[faces[face_index].v1].normal[0] += 
+      faces[face_index].normal[0];
+    shared_normals[faces[face_index].v1].normal[1] += 
+      faces[face_index].normal[1];
+    shared_normals[faces[face_index].v1].normal[2] += 
+      faces[face_index].normal[2];
 		shared_normals[faces[face_index].v1].count++;
-		shared_normals[faces[face_index].v2].normal[0] += faces[face_index].normal[0];
-    shared_normals[faces[face_index].v2].normal[1] += faces[face_index].normal[1];
-    shared_normals[faces[face_index].v2].normal[2] += faces[face_index].normal[2];
+
+		shared_normals[faces[face_index].v2].normal[0] += 
+      faces[face_index].normal[0];
+    shared_normals[faces[face_index].v2].normal[1] += 
+      faces[face_index].normal[1];
+    shared_normals[faces[face_index].v2].normal[2] += 
+      faces[face_index].normal[2];
 		shared_normals[faces[face_index].v2].count++;
 	}
 
 	for (uint32_t i = 0; i < vertices_number; ++i) {
-    vertices_normals[i * 3 + 0] = (1.f / (float)shared_normals[i].count) * shared_normals[i].normal[0];
-    vertices_normals[i * 3 + 1] = (1.f / (float)shared_normals[i].count) * shared_normals[i].normal[1];
-    vertices_normals[i * 3 + 2] = (1.f / (float)shared_normals[i].count) * shared_normals[i].normal[2];
+    vertices_normals[i * 3 + 0] = 
+      (1.f / (float)shared_normals[i].count) * shared_normals[i].normal[0];
+    vertices_normals[i * 3 + 1] = 
+      (1.f / (float)shared_normals[i].count) * shared_normals[i].normal[1];
+    vertices_normals[i * 3 + 2] = 
+      (1.f / (float)shared_normals[i].count) * shared_normals[i].normal[2];
   }
 
 	for (uint32_t face_index = 0; face_index < faces_number; ++face_index) {
-		faces[face_index].v0_normal[0] = vertices_normals[faces[face_index].v0 * 3 + 0];
-    faces[face_index].v0_normal[1] = vertices_normals[faces[face_index].v0 * 3 + 1];
-    faces[face_index].v0_normal[2] = vertices_normals[faces[face_index].v0 * 3 + 2];
-		faces[face_index].v1_normal[0] = vertices_normals[faces[face_index].v1 * 3 + 0];
-    faces[face_index].v1_normal[1] = vertices_normals[faces[face_index].v1 * 3 + 1];
-    faces[face_index].v1_normal[2] = vertices_normals[faces[face_index].v1 * 3 + 2];
-		faces[face_index].v2_normal[0] = vertices_normals[faces[face_index].v2 * 3 + 0];
-    faces[face_index].v2_normal[1] = vertices_normals[faces[face_index].v2 * 3 + 1];
-    faces[face_index].v2_normal[2] = vertices_normals[faces[face_index].v2 * 3 + 2];
+		faces[face_index].v0_normal[0] = 
+      vertices_normals[faces[face_index].v0 * 3 + 0];
+    faces[face_index].v0_normal[1] = 
+      vertices_normals[faces[face_index].v0 * 3 + 1];
+    faces[face_index].v0_normal[2] = 
+      vertices_normals[faces[face_index].v0 * 3 + 2];
+		faces[face_index].v1_normal[0] = 
+      vertices_normals[faces[face_index].v1 * 3 + 0];
+    faces[face_index].v1_normal[1] = 
+      vertices_normals[faces[face_index].v1 * 3 + 1];
+    faces[face_index].v1_normal[2] = 
+      vertices_normals[faces[face_index].v1 * 3 + 2];
+		faces[face_index].v2_normal[0] = 
+      vertices_normals[faces[face_index].v2 * 3 + 0];
+    faces[face_index].v2_normal[1] = 
+      vertices_normals[faces[face_index].v2 * 3 + 1];
+    faces[face_index].v2_normal[2] = 
+      vertices_normals[faces[face_index].v2 * 3 + 2];
 	}
 
   allocator->mem_free(vertices_normals);
@@ -96,13 +123,19 @@ allocate_intermediate_mesh(
   uint32_t faces_count, 
   const allocator_t* allocator)
 {
-  intermediate_mesh_t* mesh = (intermediate_mesh_t *)allocator->mem_alloc(sizeof(intermediate_mesh_t));
+  intermediate_mesh_t* mesh = 
+    (intermediate_mesh_t *)allocator->mem_alloc(sizeof(intermediate_mesh_t));
   mesh->vertices_count = vertices_count;
-  mesh->vertices = (float *)allocator->mem_alloc(sizeof(float) * mesh->vertices_count * 3);
+  mesh->vertices = 
+    (float *)allocator->mem_alloc(sizeof(float) * mesh->vertices_count * 3);
   mesh->texture_vertices_count = texture_vertices_count;
-  mesh->texture_vertices = (float *)allocator->mem_alloc(sizeof(float) * mesh->texture_vertices_count * 3);
+  mesh->texture_vertices = 
+    (float *)allocator->mem_alloc(
+      sizeof(float) * mesh->texture_vertices_count * 3);
   mesh->faces_count = faces_count;
-  mesh->faces = (intermediate_face_t *)allocator->mem_cont_alloc(mesh->faces_count, sizeof(intermediate_face_t));
+  mesh->faces = 
+    (intermediate_face_t *)allocator->mem_cont_alloc(
+      mesh->faces_count, sizeof(intermediate_face_t));
   return mesh;
 }
 
@@ -125,12 +158,20 @@ convert_intermediate_mesh(
 {
   sprintf(mesh_data->name.data, "%s", mesh->name.data);
   mesh_data->vertices_count = mesh->texture_vertices_count;
-  mesh_data->vertices = (float *)allocator->mem_alloc(mesh->texture_vertices_count * 3 * sizeof(float));
-  mesh_data->normals = (float *)allocator->mem_alloc(mesh->texture_vertices_count * 3 * sizeof(float));
-  mesh_data->uvs = (float *)allocator->mem_alloc(mesh->texture_vertices_count * 3 * sizeof(float));
+  mesh_data->vertices = 
+    (float *)allocator->mem_alloc(
+      mesh->texture_vertices_count * 3 * sizeof(float));
+  mesh_data->normals = 
+    (float *)allocator->mem_alloc(
+      mesh->texture_vertices_count * 3 * sizeof(float));
+  mesh_data->uvs = 
+    (float *)allocator->mem_alloc(
+      mesh->texture_vertices_count * 3 * sizeof(float));
   mesh_data->faces_count = mesh->faces_count;
-  mesh_data->indices = (uint32_t *)allocator->mem_alloc(mesh->faces_count * 3 * sizeof(uint32_t));
-  mesh_data->materials.indices[mesh_data->materials.used++] = mesh->material_index;
+  mesh_data->indices = 
+    (uint32_t *)allocator->mem_alloc(mesh->faces_count * 3 * sizeof(uint32_t));
+  mesh_data->materials.indices[mesh_data->materials.used++] = 
+    mesh->material_index;
 
   for (uint32_t i = 0, index = 0; i < mesh->faces_count; ++i) {
     intermediate_face_t* face = mesh->faces + i;
@@ -162,27 +203,37 @@ convert_intermediate_mesh(
     mesh_data->normals[face->v2_t * 3 + 1] = face->v2_normal[1];
     mesh_data->normals[face->v2_t * 3 + 2] = face->v2_normal[2];
 
-    mesh_data->uvs[face->v0_t * 3 + 0] = mesh->texture_vertices[face->v0_t * 3 + 0];
-    mesh_data->uvs[face->v0_t * 3 + 1] = mesh->texture_vertices[face->v0_t * 3 + 1];
-    mesh_data->uvs[face->v0_t * 3 + 2] = mesh->texture_vertices[face->v0_t * 3 + 2];
+    mesh_data->uvs[face->v0_t * 3 + 0] = 
+      mesh->texture_vertices[face->v0_t * 3 + 0];
+    mesh_data->uvs[face->v0_t * 3 + 1] = 
+      mesh->texture_vertices[face->v0_t * 3 + 1];
+    mesh_data->uvs[face->v0_t * 3 + 2] = 
+      mesh->texture_vertices[face->v0_t * 3 + 2];
 
-    mesh_data->uvs[face->v1_t * 3 + 0] = mesh->texture_vertices[face->v1_t * 3 + 0];
-    mesh_data->uvs[face->v1_t * 3 + 1] = mesh->texture_vertices[face->v1_t * 3 + 1];
-    mesh_data->uvs[face->v1_t * 3 + 2] = mesh->texture_vertices[face->v1_t * 3 + 2];
+    mesh_data->uvs[face->v1_t * 3 + 0] = 
+      mesh->texture_vertices[face->v1_t * 3 + 0];
+    mesh_data->uvs[face->v1_t * 3 + 1] = 
+      mesh->texture_vertices[face->v1_t * 3 + 1];
+    mesh_data->uvs[face->v1_t * 3 + 2] = 
+      mesh->texture_vertices[face->v1_t * 3 + 2];
 
-    mesh_data->uvs[face->v2_t * 3 + 0] = mesh->texture_vertices[face->v2_t * 3 + 0];
-    mesh_data->uvs[face->v2_t * 3 + 1] = mesh->texture_vertices[face->v2_t * 3 + 1];
-    mesh_data->uvs[face->v2_t * 3 + 2] = mesh->texture_vertices[face->v2_t * 3 + 2];
+    mesh_data->uvs[face->v2_t * 3 + 0] = 
+      mesh->texture_vertices[face->v2_t * 3 + 0];
+    mesh_data->uvs[face->v2_t * 3 + 1] = 
+      mesh->texture_vertices[face->v2_t * 3 + 1];
+    mesh_data->uvs[face->v2_t * 3 + 2] = 
+      mesh->texture_vertices[face->v2_t * 3 + 2];
   }
 }
 
 
 typedef 
-struct chunk_t {
+struct {
   const char* start;
   size_t size;
 } chunk_t;
 
+static
 chunk_t 
 read_chunk(
   const chunk_t *chunk, 
@@ -229,7 +280,9 @@ read_color(
     return;
 
   color_start += strlen(label);
-  sscanf(color_start, " %f %f %f", color->data + 0, color->data + 1, color->data + 2);
+  sscanf(
+    color_start, 
+    " %f %f %f", color->data + 0, color->data + 1, color->data + 2);
 }
 
 void
@@ -281,6 +334,7 @@ read_string_512(
   sprintf(data, "%.*s", name_length, name);
 }
 
+static
 int32_t 
 has_label(
   const chunk_t *pchunk, 
@@ -332,7 +386,9 @@ read_ase_materials(
   int32_t material_count = 0;
   sscanf(target, " %d", &material_count);
   material_repo->used = (uint32_t)material_count;
-  material_repo->data = (loader_material_data_t *)allocator->mem_cont_alloc((size_t)material_count, sizeof(loader_material_data_t));
+  material_repo->data = 
+    (loader_material_data_t *)allocator->mem_cont_alloc(
+      (size_t)material_count, sizeof(loader_material_data_t));
 
   {
     loader_material_data_t* material = NULL;
@@ -357,11 +413,14 @@ read_ase_materials(
       material->opacity = 1.f - material->opacity;
 
       if (has_label(&subchunk, "*MAP_DIFFUSE"))
-        read_texture(&subchunk, "*MAP_DIFFUSE", &material->textures.data[material->textures.used++]);
+        read_texture(&subchunk, "*MAP_DIFFUSE", 
+        &material->textures.data[material->textures.used++]);
       if (has_label(&subchunk, "*MAP_OPACITY"))
-        read_texture(&subchunk, "*MAP_OPACITY", &material->textures.data[material->textures.used++]);
+        read_texture(&subchunk, "*MAP_OPACITY", 
+        &material->textures.data[material->textures.used++]);
       if (has_label(&subchunk, "*MAP_BUMP"))
-        read_texture(&subchunk, "*MAP_OPACITY", &material->textures.data[material->textures.used++]);
+        read_texture(&subchunk, "*MAP_OPACITY", 
+        &material->textures.data[material->textures.used++]);
     }
   }
 }
@@ -371,7 +430,8 @@ read_scene(
   const chunk_t *pchunk, 
   const allocator_t* allocator)
 {
-  loader_ase_data_t* scene_data = (loader_ase_data_t *)allocator->mem_alloc(sizeof(loader_ase_data_t));
+  loader_ase_data_t* scene_data = 
+    (loader_ase_data_t *)allocator->mem_alloc(sizeof(loader_ase_data_t));
   memset(scene_data, 0, sizeof(loader_ase_data_t));
 
   read_ase_materials(pchunk, &scene_data->material_repo, allocator);
@@ -389,10 +449,14 @@ read_scene(
   
   // 1 to 1 with models.
   scene_data->mesh_repo.used = mesh_count;
-  scene_data->mesh_repo.data = (loader_mesh_data_t *)allocator->mem_cont_alloc(mesh_count, sizeof(loader_mesh_data_t));
+  scene_data->mesh_repo.data = 
+    (loader_mesh_data_t *)allocator->mem_cont_alloc(
+      mesh_count, sizeof(loader_mesh_data_t));
 
   scene_data->model_repo.used = mesh_count;
-  scene_data->model_repo.data = (loader_model_data_t *)allocator->mem_cont_alloc(mesh_count, sizeof(loader_model_data_t));
+  scene_data->model_repo.data = 
+    (loader_model_data_t *)allocator->mem_cont_alloc(
+      mesh_count, sizeof(loader_model_data_t));
 
   uint32_t index = 0;
   const char* current = strstr(pchunk->start, "*GEOMOBJECT");

@@ -8,8 +8,9 @@
  * @copyright Copyright (c) 2023
  * 
  */
-#include <loaders/loader_png.h>
 #include <string.h>
+#include <library/allocator/allocator.h>
+#include <loaders/loader_png.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -26,7 +27,8 @@ load_png(
   const char* path,
   const allocator_t* allocator)
 {
-  loader_png_data_t* data = (loader_png_data_t*)allocator->mem_alloc(sizeof(loader_png_data_t));
+  loader_png_data_t* data = 
+    (loader_png_data_t*)allocator->mem_alloc(sizeof(loader_png_data_t));
 
   png_byte color_type;
   png_byte bit_depth;
@@ -35,7 +37,8 @@ load_png(
 
   FILE* fp = fopen(path, "rb");
 
-  png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  png_structp png = 
+    png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (!png)
     abort();
 
@@ -86,7 +89,8 @@ load_png(
   data->buffer = (uint8_t*)allocator->mem_alloc(info->rowbytes * png->height);
   data->total_buffer_size = info->rowbytes * png->height;
   memset(data->buffer, 0, info->rowbytes * png->height);
-  row_pointers = (png_bytep*)allocator->mem_alloc(sizeof(png_bytep) * data->height);
+  row_pointers = 
+    (png_bytep*)allocator->mem_alloc(sizeof(png_bytep) * data->height);
 
   for (int32_t y = 0; y < (int32_t)data->height; y++)
     row_pointers[y] = &data->buffer[(data->height - y - 1) * info->rowbytes];
