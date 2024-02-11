@@ -252,6 +252,7 @@ read_map(const chunk_t *content, const allocator_t* allocator)
   return map_data;
 }
 
+// TODO: We need a loader unit test for map.
 loader_map_data_t*
 load_map(const char* path, const allocator_t *allocator)
 {

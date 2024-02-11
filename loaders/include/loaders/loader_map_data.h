@@ -13,6 +13,8 @@
 
 #include <stdint.h>
 
+// The plane points must be arranged such that the cross product of the vectors 
+// (p3 - p1) and (p2 - p1) is not null
 typedef
 struct {
   int32_t data[9];
