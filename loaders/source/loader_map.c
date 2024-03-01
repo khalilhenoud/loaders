@@ -55,7 +55,7 @@ chunk_t
 read_chunk(const chunk_t *outer, uintptr_t offset)
 {
   chunk_t result = { NULL, 0};
-  chunk_t chunk = { outer->start + offset, outer->size };
+  chunk_t chunk = { outer->start + offset, outer->size - offset};
   const char *open_bracket = strchr(chunk.start, '{');
   if (!open_bracket || open_bracket > (outer->start + outer->size))
     return result;
@@ -127,7 +127,7 @@ find_chunk(
     if (has_label(&current, label))
       return current;
 
-    current = read_chunk(content, (uintptr_t)current.start + current.size);
+    current = read_chunk(content, current.size);
   }
 
   return current;
@@ -235,6 +235,40 @@ read_world_data(
   }
 }
 
+static
+void
+read_player_start(
+  loader_map_data_t* map_data, 
+  const chunk_t* player_start, 
+  const allocator_t* allocator)
+{
+  map_data->player_angle = 0;
+  map_data->player_start[0] = 
+  map_data->player_start[1] = 
+  map_data->player_start[2] = 0; 
+
+  assert(has_label(player_start, "origin") != 0);
+  assert(has_label(player_start, "angle") != 0);
+
+  {   
+    const char *start = player_start->start;
+    const char *end = strchr(start, '\n');
+    while (within(player_start, end)) {
+      sscanf(
+        start, "\"origin\" \"%i %i %i\"", 
+        map_data->player_start + 0, 
+        map_data->player_start + 1, 
+        map_data->player_start + 2);
+      sscanf(
+        start, "\"angle\" \"%i\"", 
+        &map_data->player_angle);
+
+      start = end + 1;
+      end = strchr(start, '\n');
+    }
+  }
+}
+
 loader_map_data_t*
 read_map(const chunk_t *content, const allocator_t* allocator)
 {
@@ -247,6 +281,13 @@ read_map(const chunk_t *content, const allocator_t* allocator)
     assert(is_valid(&chunk));
 
     read_world_data(map_data, &chunk, allocator);
+  }
+
+  {
+    chunk_t chunk = find_chunk(content, "info_player_start");
+    assert(is_valid(&chunk));
+
+    read_player_start(map_data, &chunk, allocator);
   }
 
   return map_data;
