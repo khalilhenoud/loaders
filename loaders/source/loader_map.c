@@ -16,6 +16,7 @@
 #include <loaders/utils.h>
 
 
+// TODO: Support the rest of the entities in the map file.
 /*
 typedef
 struct {
