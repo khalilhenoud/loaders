@@ -53,10 +53,14 @@ typedef chunk_t sub_chunk_t;
 
 static
 chunk_t
-read_chunk(const chunk_t *outer, uintptr_t offset)
+read_chunk(
+  const chunk_t *outer, 
+  const chunk_t *previous)
 {
   chunk_t result = { NULL, 0};
-  chunk_t chunk = { outer->start + offset, outer->size - offset};
+  chunk_t chunk = { 
+    previous->start + previous->size + 1, 
+    outer->size - (previous->start + previous->size + 1 - outer->start)};
   const char *open_bracket = strchr(chunk.start, '{');
   if (!open_bracket || open_bracket > (outer->start + outer->size))
     return result;
@@ -123,12 +127,13 @@ find_chunk(
   const chunk_t *content, 
   const char *label)
 {
-  chunk_t current = read_chunk(content, 0);
+  chunk_t start = { content->start, 0 };
+  chunk_t current = read_chunk(content, &start);
   while (is_valid(&current)) {
     if (has_label(&current, label))
       return current;
 
-    current = read_chunk(content, current.size);
+    current = read_chunk(content, &current);
   }
 
   return current;
@@ -210,12 +215,11 @@ read_world_data(
   const chunk_t* world, 
   const allocator_t* allocator)
 {
-  chunk_t brush;
+  chunk_t brush = { world->start, 0 };
   uint32_t brush_count = 0;
-  brush = read_chunk(world, 1);
+  brush = read_chunk(world, &brush);
   while (chunk_within(world, &brush) && is_valid(&brush) && ++brush_count)
-    brush = read_chunk(
-      world, (uintptr_t)brush.start + brush.size - (uintptr_t)world->start);
+    brush = read_chunk(world, &brush);
 
   map_data->world.brush_count = brush_count;
   map_data->world.brushes = 
@@ -226,11 +230,11 @@ read_world_data(
   {
     // parse every brush, we need to know the number of planes the brush makes.
     uint32_t i = 0;
-    brush = read_chunk(world, 1);
+    chunk_t start = { world->start, 0 };
+    brush = read_chunk(world, &start);
     while (chunk_within(world, &brush) && is_valid(&brush)) {
       read_brush(map_data->world.brushes + i, &brush, allocator);
-      brush = read_chunk(
-        world, (uintptr_t)brush.start + brush.size - (uintptr_t)world->start);
+      brush = read_chunk(world, &brush);
       i++;
     } 
   }
