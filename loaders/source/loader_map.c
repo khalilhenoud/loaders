@@ -51,16 +51,21 @@ struct {
 
 typedef chunk_t sub_chunk_t;
 
+inline
+uint32_t
+within(const chunk_t* chunk, const char* ptr)
+{
+  return ptr < (chunk->start + chunk->size) && ptr >= chunk->start;
+}
+
 static
 chunk_t
 read_chunk(
   const chunk_t *outer, 
-  const chunk_t *previous)
+  uintptr_t offset)
 {
   chunk_t result = { NULL, 0};
-  chunk_t chunk = { 
-    previous->start + previous->size + 1, 
-    outer->size - (previous->start + previous->size + 1 - outer->start)};
+  chunk_t chunk = { outer->start + offset, outer->size - offset};
   const char *open_bracket = strchr(chunk.start, '{');
   if (!open_bracket || open_bracket > (outer->start + outer->size))
     return result;
@@ -89,18 +94,21 @@ read_chunk(
   return result;
 }
 
+static
+chunk_t
+read_sub_chunk(
+  const chunk_t *outer, 
+  const chunk_t *previous)
+{
+  assert(within(outer, previous->start));
+  return read_chunk(outer, previous->start + previous->size + 1 - outer->start);
+}
+
 inline
 uint32_t
 is_valid(const chunk_t* chunk)
 {
   return chunk->start != NULL;
-}
-
-inline
-uint32_t
-within(const chunk_t* chunk, const char* ptr)
-{
-  return ptr < (chunk->start + chunk->size) && ptr >= chunk->start;
 }
 
 inline
@@ -127,13 +135,13 @@ find_chunk(
   const chunk_t *content, 
   const char *label)
 {
-  chunk_t start = { content->start, 0 };
-  chunk_t current = read_chunk(content, &start);
+  chunk_t current = read_chunk(content, 0);
   while (is_valid(&current)) {
     if (has_label(&current, label))
       return current;
 
-    current = read_chunk(content, &current);
+    current = read_chunk(
+      content, (current.start + current.size - content->start));
   }
 
   return current;
@@ -217,9 +225,9 @@ read_world_data(
 {
   chunk_t brush = { world->start, 0 };
   uint32_t brush_count = 0;
-  brush = read_chunk(world, &brush);
+  brush = read_sub_chunk(world, &brush);
   while (chunk_within(world, &brush) && is_valid(&brush) && ++brush_count)
-    brush = read_chunk(world, &brush);
+    brush = read_sub_chunk(world, &brush);
 
   map_data->world.brush_count = brush_count;
   map_data->world.brushes = 
@@ -231,10 +239,10 @@ read_world_data(
     // parse every brush, we need to know the number of planes the brush makes.
     uint32_t i = 0;
     chunk_t start = { world->start, 0 };
-    brush = read_chunk(world, &start);
+    brush = read_sub_chunk(world, &start);
     while (chunk_within(world, &brush) && is_valid(&brush)) {
       read_brush(map_data->world.brushes + i, &brush, allocator);
-      brush = read_chunk(world, &brush);
+      brush = read_sub_chunk(world, &brush);
       i++;
     } 
   }
