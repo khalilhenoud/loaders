@@ -141,7 +141,7 @@ find_chunk(
       return current;
 
     current = read_chunk(
-      content, (current.start + current.size - content->start));
+      content, (current.start + current.size + 1 - content->start));
   }
 
   return current;

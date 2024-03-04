@@ -34,7 +34,7 @@ struct {
 } loader_map_entity_t;
 
 typedef
-struct {
+struct loader_map_data_t {
   loader_map_entity_t world;
   int32_t player_start[3];
   int32_t player_angle;
