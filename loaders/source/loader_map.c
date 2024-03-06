@@ -179,6 +179,8 @@ read_brush(
     brush_data->faces = 
       (brush_face_data_t*)allocator->mem_cont_alloc(
         brush_data->face_count, sizeof(brush_face_data_t));
+    memset(
+      brush_data->faces, 0, brush_data->face_count * sizeof(brush_face_data_t));
 
     {
       // populate the data used by each face.
@@ -187,14 +189,16 @@ read_brush(
       end = strchr(start, '\n');
       while (within(brush, end)) {
         if (*start == '(') {
-          int32_t* data = brush_data->faces[i++].data;
+          brush_face_data_t* face = brush_data->faces + i++;
           // we need to read 3 vertices. ( x y z ) (...) (...)
           sscanf(
             start, 
-            "( %i %i %i ) ( %i %i %i ) ( %i %i %i )", 
-            data + 0, data + 1, data + 2, 
-            data + 3, data + 4, data + 5, 
-            data + 6, data + 7, data + 8);
+            "( %i %i %i ) ( %i %i %i ) ( %i %i %i ) %s %i %i %i %f %f", 
+            face->data + 0, face->data + 1, face->data + 2, 
+            face->data + 3, face->data + 4, face->data + 5, 
+            face->data + 6, face->data + 7, face->data + 8,
+            face->texture, face->offset, face->offset + 1, &face->rotation,
+            face->scale, face->scale + 1);
         }
         
         start = end + 1;

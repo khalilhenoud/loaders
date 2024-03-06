@@ -18,6 +18,10 @@
 typedef
 struct {
   int32_t data[9];
+  char texture[24];
+  int32_t offset[2];
+  int32_t rotation;
+  float scale[2];
 } brush_face_data_t;
 
 typedef
