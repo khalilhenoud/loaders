@@ -35,6 +35,7 @@ typedef
 struct {
   uint32_t brush_count;
   loader_map_brush_data_t* brushes;
+  char wad[64];
 } loader_map_entity_t;
 
 typedef

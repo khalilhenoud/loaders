@@ -222,6 +222,29 @@ free_world_data(
 
 static
 void
+read_wad(
+  loader_map_data_t* map_data, 
+  const chunk_t* world, 
+  const allocator_t* allocator)
+{
+  assert(has_label(world, "wad") != 0);
+
+  {   
+    const char *start = world->start;
+    const char *end = strchr(start, '\n');
+    while (within(world, end)) {
+      int32_t read = sscanf(start, "\"wad\" \"%s\"", map_data->world.wad);
+      if (read == 1)
+        break;
+
+      start = end + 1;
+      end = strchr(start, '\n');
+    }
+  }
+}
+
+static
+void
 read_world_data(
   loader_map_data_t* map_data, 
   const chunk_t* world, 
@@ -232,6 +255,8 @@ read_world_data(
   brush = read_sub_chunk(world, &brush);
   while (chunk_within(world, &brush) && is_valid(&brush) && ++brush_count)
     brush = read_sub_chunk(world, &brush);
+
+  read_wad(map_data, world, allocator);
 
   map_data->world.brush_count = brush_count;
   map_data->world.brushes = 
