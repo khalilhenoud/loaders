@@ -234,8 +234,12 @@ read_wad(
     const char *end = strchr(start, '\n');
     while (within(world, end)) {
       int32_t read = sscanf(start, "\"wad\" \"%s\"", map_data->world.wad);
-      if (read == 1)
+      if (read == 1) {
+        // trim the .wad file format with the added '"".
+        const char* delimiter = strstr(map_data->world.wad, ".wad");
+        *delimiter = 0;
         break;
+      }
 
       start = end + 1;
       end = strchr(start, '\n');
