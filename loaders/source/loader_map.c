@@ -17,30 +17,6 @@
 
 
 // TODO: Support the rest of the entities in the map file.
-/*
-typedef
-struct {
-  point3f points[3];
-} brush_face_data_t;
-
-typedef
-struct {
-  uint32_t plane_count;
-  brush_face_data_t* faces;
-} loader_map_brush_data_t;
-
-typedef
-struct {
-  uint32_t brush_count;
-  loader_map_brush_data_t* brushes;
-} loader_map_shape_t;
-
-typedef
-struct {
-  loader_map_shape_t world;
-  point3f player_start;
-} loader_map_data_t;
-*/
 
 // invalid if start = NULL.
 typedef 
@@ -222,6 +198,16 @@ free_world_data(
 
 static
 void
+free_light_data(
+  loader_map_data_t* map_data, 
+  const allocator_t* allocator)
+{
+  if (map_data->lights.count)
+    allocator->mem_free(map_data->lights.lights);
+}
+
+static
+void
 read_wad(
   loader_map_data_t* map_data, 
   const chunk_t* world, 
@@ -283,6 +269,68 @@ read_world_data(
 
 static
 void
+populate_light_data(
+  loader_map_light_data_t* light, 
+  const chunk_t *chunk, 
+  const allocator_t* allocator)
+{
+  memset(light, 0, sizeof(loader_map_light_data_t));
+
+  light->light = 200;
+
+  {   
+    const char *start = chunk->start;
+    const char *end = strchr(start, '\n');
+    while (within(chunk, end)) {
+      sscanf(
+        start, "\"origin\" \"%i %i %i\"", 
+        light->origin + 0, 
+        light->origin + 1, 
+        light->origin + 2);
+      sscanf(
+        start, "\"light\" \"%i\"", 
+        &light->light);
+
+      start = end + 1;
+      end = strchr(start, '\n');
+    }
+  }
+}
+
+static
+void
+read_light_data(
+  loader_map_light_t *light_data, 
+  const chunk_t *content, 
+  const allocator_t* allocator)
+{
+  uint32_t lcount = 0;
+  chunk_t current = read_chunk(content, 0);
+  while (is_valid(&current) && has_label(&current, "\"light\"") && ++lcount) {
+    current = read_chunk(
+      content, (current.start + current.size + 1 - content->start));
+  }
+
+  light_data->count = lcount;
+  light_data->lights = 
+    (loader_map_light_data_t *)allocator->mem_cont_alloc(
+      light_data->count, 
+      sizeof(loader_map_light_data_t));
+  
+  {
+    chunk_t current = read_chunk(content, 0);
+    uint32_t index = 0;
+    while (is_valid(&current) && has_label(&current, "\"light\"")) {
+      populate_light_data(light_data->lights + index++, &current, allocator);
+
+      current = read_chunk(
+        content, (current.start + current.size + 1 - content->start));
+    }
+  }
+}
+
+static
+void
 read_player_start(
   loader_map_data_t* map_data, 
   const chunk_t* player_start, 
@@ -330,6 +378,10 @@ read_map(const chunk_t *content, const allocator_t* allocator)
   }
 
   {
+    read_light_data(&map_data->lights, content, allocator);
+  }
+
+  {
     chunk_t chunk = find_chunk(content, "info_player_start");
     assert(is_valid(&chunk));
 
@@ -361,5 +413,6 @@ free_map(loader_map_data_t* data, const allocator_t *allocator)
   assert(data && allocator);
 
   free_world_data(data, allocator);
+  free_light_data(data, allocator);
   allocator->mem_free(data);
 }

@@ -13,6 +13,7 @@
 
 #include <stdint.h>
 
+
 // The plane points must be arranged such that the cross product of the vectors 
 // (p3 - p1) and (p2 - p1) is not null
 typedef
@@ -30,7 +31,6 @@ struct {
   brush_face_data_t* faces;
 } loader_map_brush_data_t;
 
-// should be entity.
 typedef
 struct {
   uint32_t brush_count;
@@ -39,8 +39,21 @@ struct {
 } loader_map_entity_t;
 
 typedef
+struct {
+  int32_t origin[3];
+  int32_t light;  // default is 200
+} loader_map_light_data_t;
+
+typedef
+struct {
+  uint32_t count;
+  loader_map_light_data_t* lights;
+} loader_map_light_t;
+
+typedef
 struct loader_map_data_t {
   loader_map_entity_t world;
+  loader_map_light_t lights;
   int32_t player_start[3];
   int32_t player_angle;
 } loader_map_data_t;
