@@ -304,14 +304,15 @@ read_light_data(
   const chunk_t *content, 
   const allocator_t* allocator)
 {
-  uint32_t lcount = 0;
   chunk_t current = read_chunk(content, 0);
-  while (is_valid(&current) && has_label(&current, "\"light\"") && ++lcount) {
+  while (is_valid(&current)) {
+    if (has_label(&current, "\"light\""))
+      ++light_data->count;
+
     current = read_chunk(
       content, (current.start + current.size + 1 - content->start));
   }
 
-  light_data->count = lcount;
   light_data->lights = 
     (loader_map_light_data_t *)allocator->mem_cont_alloc(
       light_data->count, 
@@ -320,8 +321,10 @@ read_light_data(
   {
     chunk_t current = read_chunk(content, 0);
     uint32_t index = 0;
-    while (is_valid(&current) && has_label(&current, "\"light\"")) {
-      populate_light_data(light_data->lights + index++, &current, allocator);
+    while (is_valid(&current)) {
+      if (has_label(&current, "\"light\""))
+        populate_light_data(
+          light_data->lights + index++, &current, allocator);
 
       current = read_chunk(
         content, (current.start + current.size + 1 - content->start));
