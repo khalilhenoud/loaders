@@ -16,9 +16,10 @@ extern "C" {
 #endif
 
 #include <loaders/internal/module.h>
-#include <library/allocator/allocator.h>
 #include <loaders/loader_png_data.h>
 
+
+typedef struct allocator_t allocator_t;
 
 LOADERS_API
 loader_png_data_t*

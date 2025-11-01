@@ -10,6 +10,7 @@
  */
 #include <assert.h>
 #include <stdio.h>
+#include <library/allocator/allocator.h>
 #include <loaders/utils.h>
 
 

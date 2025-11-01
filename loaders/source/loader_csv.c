@@ -11,8 +11,9 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include <loaders/utils.h>
+#include <library/allocator/allocator.h>
 #include <loaders/loader_csv.h>
+#include <loaders/utils.h>
 
 
 typedef
@@ -26,10 +27,13 @@ load_csv(
   const char* path, 
   const allocator_t* allocator)
 {
-  loader_csv_font_data_t* font_data = (loader_csv_font_data_t*)allocator->mem_alloc(sizeof(loader_csv_font_data_t));
+  loader_csv_font_data_t* font_data = 
+    (loader_csv_font_data_t*)allocator->mem_alloc(
+      sizeof(loader_csv_font_data_t));
   size_t file_size;
   const char* data = read_file_as_ascii(path, allocator, &file_size);
-  mem_token_t* ptr_token = (mem_token_t*)allocator->mem_cont_alloc(2048, sizeof(mem_token_t));
+  mem_token_t* ptr_token = 
+    (mem_token_t*)allocator->mem_cont_alloc(2048, sizeof(mem_token_t));
   uint32_t used = 0;
 
   ptr_token[used].ptr = (uint32_t*)&(font_data->image_width);
@@ -96,11 +100,14 @@ load_csv(
         uint32_t c = i + font_data->start_char;
         uint32_t c_row = i / column;
         uint32_t c_column = i - c_row * column;
-        float dwidth = (float)(font_data->glyphs[c].width) / font_data->cell_width;
+        float dwidth = 
+          (float)(font_data->glyphs[c].width) / font_data->cell_width;
         font_data->bounds[c].data[0] = dx * (float)c_column;
         font_data->bounds[c].data[1] = 1 - dy * (float)c_row;
-        font_data->bounds[c].data[2] = font_data->bounds[c].data[0] + dx * dwidth;
-        font_data->bounds[c].data[3] = font_data->bounds[c].data[1] - dy * dheight;
+        font_data->bounds[c].data[2] = 
+          font_data->bounds[c].data[0] + dx * dwidth;
+        font_data->bounds[c].data[3] = 
+          font_data->bounds[c].data[1] - dy * dheight;
         font_data->bounds[c].data[4] = dwidth;
         font_data->bounds[c].data[5] = dheight;
       }

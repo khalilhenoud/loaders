@@ -15,10 +15,11 @@
 extern "C" {
 #endif
 
-#include <library/allocator/allocator.h>
 #include <loaders/internal/module.h>
 #include <loaders/loader_ase_mesh_data.h>
 
+
+typedef struct allocator_t allocator_t;
 
 LOADERS_API
 loader_ase_data_t* 

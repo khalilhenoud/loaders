@@ -16,9 +16,10 @@ extern "C" {
 #endif
 
 #include <loaders/internal/module.h>
-#include <library/allocator/allocator.h>
 #include <loaders/loader_csv_font_data.h>
 
+
+typedef struct allocator_t allocator_t;
 
 LOADERS_API
 loader_csv_font_data_t* 

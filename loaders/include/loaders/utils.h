@@ -16,8 +16,9 @@ extern "C" {
 #endif
 
 #include <loaders/internal/module.h>
-#include <library/allocator/allocator.h>
 
+
+typedef struct allocator_t allocator_t;
 
 LOADERS_API
 const char*

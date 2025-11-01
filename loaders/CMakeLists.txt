@@ -10,6 +10,7 @@ add_library(${PROJECT_NAME} SHARED
 			./source/loader_ase.c
 			./source/loader_csv.c
 			./source/loader_png.c
+      ./source/loader_map.c
 			./source/utils.c
 			./include/loaders/internal/module.h
       )
