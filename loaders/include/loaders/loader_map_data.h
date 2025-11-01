@@ -17,7 +17,7 @@
 // The plane points must be arranged such that the cross product of the vectors 
 // (p3 - p1) and (p2 - p1) is not null
 typedef
-struct {
+struct brush_face_data_t {
   int32_t data[9];
   char texture[24];
   int32_t offset[2];
@@ -26,26 +26,26 @@ struct {
 } brush_face_data_t;
 
 typedef
-struct {
+struct loader_map_brush_data_t {
   uint32_t face_count;
   brush_face_data_t* faces;
 } loader_map_brush_data_t;
 
 typedef
-struct {
+struct loader_map_entity_t {
   uint32_t brush_count;
   loader_map_brush_data_t* brushes;
   char wad[64];
 } loader_map_entity_t;
 
 typedef
-struct {
+struct loader_map_light_data_t {
   int32_t origin[3];
   int32_t light;  // default is 200
 } loader_map_light_data_t;
 
 typedef
-struct {
+struct loader_map_light_t {
   uint32_t count;
   loader_map_light_data_t* lights;
 } loader_map_light_t;
