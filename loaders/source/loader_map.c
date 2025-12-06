@@ -1,25 +1,25 @@
 /**
  * @file loader_map.c
  * @author khalilhenoud@gmail.com
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-01-29
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
-#include <library/allocator/allocator.h>
 #include <loaders/loader_map.h>
 #include <loaders/utils.h>
+#include <library/allocator/allocator.h>
 
 
 // TODO: Support the rest of the entities in the map file.
 
 // invalid if start = NULL.
-typedef 
+typedef
 struct {
   const char* start;
   size_t size;
@@ -37,7 +37,7 @@ within(const chunk_t* chunk, const char* ptr)
 static
 chunk_t
 read_chunk(
-  const chunk_t *outer, 
+  const chunk_t *outer,
   uintptr_t offset)
 {
   chunk_t result = { NULL, 0};
@@ -73,7 +73,7 @@ read_chunk(
 static
 chunk_t
 read_sub_chunk(
-  const chunk_t *outer, 
+  const chunk_t *outer,
   const chunk_t *previous)
 {
   assert(within(outer, previous->start));
@@ -91,10 +91,10 @@ inline
 uint32_t
 chunk_within(const chunk_t* chunk, const chunk_t* sub_chunk)
 {
-  return 
-    (sub_chunk->start < (chunk->start + chunk->size) && 
-      sub_chunk->start >= chunk->start) && 
-    ((sub_chunk->start + sub_chunk->size) < (chunk->start + chunk->size) && 
+  return
+    (sub_chunk->start < (chunk->start + chunk->size) &&
+      sub_chunk->start >= chunk->start) &&
+    ((sub_chunk->start + sub_chunk->size) < (chunk->start + chunk->size) &&
       (sub_chunk->start + sub_chunk->size) >= chunk->start);
 }
 
@@ -107,8 +107,8 @@ has_label(const chunk_t* chunk, const char* label)
 }
 
 chunk_t
-find_chunk( 
-  const chunk_t *content, 
+find_chunk(
+  const chunk_t *content,
   const char *label)
 {
   chunk_t current = read_chunk(content, 0);
@@ -126,7 +126,7 @@ find_chunk(
 static
 void
 free_brush(
-  loader_map_brush_data_t* brush_data, 
+  loader_map_brush_data_t* brush_data,
   const allocator_t* allocator)
 {
   allocator->mem_free(brush_data->faces);
@@ -135,24 +135,24 @@ free_brush(
 static
 void
 read_brush(
-  loader_map_brush_data_t* brush_data, 
-  const chunk_t* brush, 
+  loader_map_brush_data_t* brush_data,
+  const chunk_t* brush,
   const allocator_t* allocator)
 {
   brush_data->face_count = 0;
 
-  {   
+  {
     const char *start = brush->start;
     const char *end = strchr(start, '\n');
     while (within(brush, end)) {
       if (*start == '(')
         ++brush_data->face_count;
-      
+
       start = end + 1;
       end = strchr(start, '\n');
     }
 
-    brush_data->faces = 
+    brush_data->faces =
       (brush_face_data_t*)allocator->mem_cont_alloc(
         brush_data->face_count, sizeof(brush_face_data_t));
     memset(
@@ -168,15 +168,15 @@ read_brush(
           brush_face_data_t* face = brush_data->faces + i++;
           // we need to read 3 vertices. ( x y z ) (...) (...)
           sscanf(
-            start, 
-            "( %i %i %i ) ( %i %i %i ) ( %i %i %i ) %s %i %i %i %f %f", 
-            face->data + 0, face->data + 1, face->data + 2, 
-            face->data + 3, face->data + 4, face->data + 5, 
+            start,
+            "( %i %i %i ) ( %i %i %i ) ( %i %i %i ) %s %i %i %i %f %f",
+            face->data + 0, face->data + 1, face->data + 2,
+            face->data + 3, face->data + 4, face->data + 5,
             face->data + 6, face->data + 7, face->data + 8,
             face->texture, face->offset, face->offset + 1, &face->rotation,
             face->scale, face->scale + 1);
         }
-        
+
         start = end + 1;
         end = strchr(start, '\n');
       }
@@ -187,7 +187,7 @@ read_brush(
 static
 void
 free_world_data(
-  loader_map_data_t* map_data, 
+  loader_map_data_t* map_data,
   const allocator_t* allocator)
 {
   for (uint32_t i = 0, count = map_data->world.brush_count; i < count; ++i)
@@ -199,7 +199,7 @@ free_world_data(
 static
 void
 free_light_data(
-  loader_map_data_t* map_data, 
+  loader_map_data_t* map_data,
   const allocator_t* allocator)
 {
   if (map_data->lights.count)
@@ -209,13 +209,13 @@ free_light_data(
 static
 void
 read_wad(
-  loader_map_data_t* map_data, 
-  const chunk_t* world, 
+  loader_map_data_t* map_data,
+  const chunk_t* world,
   const allocator_t* allocator)
 {
   assert(has_label(world, "wad") != 0);
 
-  {   
+  {
     const char *start = world->start;
     const char *end = strchr(start, '\n');
     while (within(world, end)) {
@@ -236,8 +236,8 @@ read_wad(
 static
 void
 read_world_data(
-  loader_map_data_t* map_data, 
-  const chunk_t* world, 
+  loader_map_data_t* map_data,
+  const chunk_t* world,
   const allocator_t* allocator)
 {
   chunk_t brush = { world->start, 0 };
@@ -249,9 +249,9 @@ read_world_data(
   read_wad(map_data, world, allocator);
 
   map_data->world.brush_count = brush_count;
-  map_data->world.brushes = 
+  map_data->world.brushes =
     (loader_map_brush_data_t *)allocator->mem_cont_alloc(
-      brush_count, 
+      brush_count,
       sizeof(loader_map_brush_data_t));
 
   {
@@ -263,32 +263,32 @@ read_world_data(
       read_brush(map_data->world.brushes + i, &brush, allocator);
       brush = read_sub_chunk(world, &brush);
       i++;
-    } 
+    }
   }
 }
 
 static
 void
 populate_light_data(
-  loader_map_light_data_t* light, 
-  const chunk_t *chunk, 
+  loader_map_light_data_t* light,
+  const chunk_t *chunk,
   const allocator_t* allocator)
 {
   memset(light, 0, sizeof(loader_map_light_data_t));
 
   light->light = 200;
 
-  {   
+  {
     const char *start = chunk->start;
     const char *end = strchr(start, '\n');
     while (within(chunk, end)) {
       sscanf(
-        start, "\"origin\" \"%i %i %i\"", 
-        light->origin + 0, 
-        light->origin + 1, 
+        start, "\"origin\" \"%i %i %i\"",
+        light->origin + 0,
+        light->origin + 1,
         light->origin + 2);
       sscanf(
-        start, "\"light\" \"%i\"", 
+        start, "\"light\" \"%i\"",
         &light->light);
 
       start = end + 1;
@@ -300,8 +300,8 @@ populate_light_data(
 static
 void
 read_light_data(
-  loader_map_light_t *light_data, 
-  const chunk_t *content, 
+  loader_map_light_t *light_data,
+  const chunk_t *content,
   const allocator_t* allocator)
 {
   chunk_t current = read_chunk(content, 0);
@@ -313,11 +313,11 @@ read_light_data(
       content, (current.start + current.size + 1 - content->start));
   }
 
-  light_data->lights = 
+  light_data->lights =
     (loader_map_light_data_t *)allocator->mem_cont_alloc(
-      light_data->count, 
+      light_data->count,
       sizeof(loader_map_light_data_t));
-  
+
   {
     chunk_t current = read_chunk(content, 0);
     uint32_t index = 0;
@@ -335,29 +335,29 @@ read_light_data(
 static
 void
 read_player_start(
-  loader_map_data_t* map_data, 
-  const chunk_t* player_start, 
+  loader_map_data_t* map_data,
+  const chunk_t* player_start,
   const allocator_t* allocator)
 {
   map_data->player_angle = 0;
-  map_data->player_start[0] = 
-  map_data->player_start[1] = 
-  map_data->player_start[2] = 0; 
+  map_data->player_start[0] =
+  map_data->player_start[1] =
+  map_data->player_start[2] = 0;
 
   assert(has_label(player_start, "origin") != 0);
   assert(has_label(player_start, "angle") != 0);
 
-  {   
+  {
     const char *start = player_start->start;
     const char *end = strchr(start, '\n');
     while (within(player_start, end)) {
       sscanf(
-        start, "\"origin\" \"%i %i %i\"", 
-        map_data->player_start + 0, 
-        map_data->player_start + 1, 
+        start, "\"origin\" \"%i %i %i\"",
+        map_data->player_start + 0,
+        map_data->player_start + 1,
         map_data->player_start + 2);
       sscanf(
-        start, "\"angle\" \"%i\"", 
+        start, "\"angle\" \"%i\"",
         &map_data->player_angle);
 
       start = end + 1;
@@ -369,7 +369,7 @@ read_player_start(
 loader_map_data_t*
 read_map(const chunk_t *content, const allocator_t* allocator)
 {
-  loader_map_data_t* map_data = 
+  loader_map_data_t* map_data =
     (loader_map_data_t*)allocator->mem_alloc(sizeof(loader_map_data_t));
   memset(map_data, 0, sizeof(loader_map_data_t));
 
@@ -400,7 +400,7 @@ load_map(const char* path, const allocator_t *allocator)
 {
   assert(path && allocator);
 
-  {    
+  {
     size_t file_size = 0;
     const char* data = read_file_as_ascii(path, allocator, &file_size);
     chunk_t content = { data, file_size };

@@ -1,22 +1,22 @@
 /**
  * @file main.cpp
  * @author khalilhenoud@gmail.com
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2023-01-03
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
-#include <loaders/loader_csv.h>
-#include <loaders/loader_ase.h>
-#include <loaders/loader_png.h>
-#include <library/allocator/allocator.h>
-#include <malloc.h>
+#include <algorithm>
 #include <cassert>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#include <loaders/loader_ase.h>
+#include <loaders/loader_csv.h>
+#include <loaders/loader_png.h>
+#include <library/allocator/allocator.h>
 
 
 std::vector<uintptr_t> allocated;
@@ -39,9 +39,9 @@ void free_block(void* block)
 {
   allocated.erase(
     std::remove_if(
-      allocated.begin(), 
-      allocated.end(), 
-      [=](uintptr_t elem) { return (uintptr_t)block == elem; }), 
+      allocated.begin(),
+      allocated.end(),
+      [=](uintptr_t elem) { return (uintptr_t)block == elem; }),
     allocated.end());
   free(block);
 }

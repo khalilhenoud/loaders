@@ -1,12 +1,12 @@
 /**
  * @file utils.h
  * @author khalilhenoud@gmail.com
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2023-01-02
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 #ifndef LOADERS_UTILS_INCLUDED_H
 #define LOADERS_UTILS_INCLUDED_H
@@ -15,6 +15,7 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
 #include <loaders/internal/module.h>
 
 
@@ -23,10 +24,9 @@ typedef struct allocator_t allocator_t;
 LOADERS_API
 const char*
 read_file_as_ascii(
-  const char* path, 
-  const allocator_t* allocator, 
+  const char* path,
+  const allocator_t* allocator,
   size_t* file_size);
-
 
 #ifdef __cpluscplus
 }

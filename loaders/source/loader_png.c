@@ -1,16 +1,13 @@
 /**
- * @file loader_png.cpp
+ * @file loader_png.c
  * @author khalilhenoud@gmail.com
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2023-01-05
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
-#include <string.h>
-#include <library/allocator/allocator.h>
-#include <loaders/loader_png.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -21,13 +18,17 @@ extern "C" {
 }
 #endif
 
+#include <string.h>
+#include <loaders/loader_png.h>
+#include <library/allocator/allocator.h>
+
 
 loader_png_data_t*
 load_png(
   const char* path,
   const allocator_t* allocator)
 {
-  loader_png_data_t* data = 
+  loader_png_data_t* data =
     (loader_png_data_t*)allocator->mem_alloc(sizeof(loader_png_data_t));
 
   png_byte color_type;
@@ -37,7 +38,7 @@ load_png(
 
   FILE* fp = fopen(path, "rb");
 
-  png_structp png = 
+  png_structp png =
     png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (!png)
     abort();
@@ -89,7 +90,7 @@ load_png(
   data->buffer = (uint8_t*)allocator->mem_alloc(info->rowbytes * png->height);
   data->total_buffer_size = info->rowbytes * png->height;
   memset(data->buffer, 0, info->rowbytes * png->height);
-  row_pointers = 
+  row_pointers =
     (png_bytep*)allocator->mem_alloc(sizeof(png_bytep) * data->height);
 
   for (int32_t y = 0; y < (int32_t)data->height; y++)
@@ -103,7 +104,7 @@ load_png(
 
 void
 free_png(
-  loader_png_data_t* data, 
+  loader_png_data_t* data,
   const allocator_t* allocator)
 {
   if (data->buffer)
